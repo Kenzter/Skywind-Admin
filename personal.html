@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Personal Profile</title>
+    <link rel="stylesheet" href="personal.css">
+</head>
+
+<body>
+  <div class="loader">
+    <img src="logo.png" alt="Loading Logo">
+  </div>
+
+<header>
+    <img class="logo" src="logo.png">
+    <nav class="navbar">
+        <ul>
+            <li><a href="home.html">HOME</a></li>
+            <li><a href="schedule.html">SCHEDULE</a></li>
+            <li><a href="request.html">REQUEST</a></li>
+            <li><a href="personal.html">PERSONAL</a></li>
+            <li><a href="logout.html">LOG OUT</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="personal-container">
+    <div class="profilebox">
+        <div class="welcome-section">
+            <h1>PERSONAL PROFILE</h1>
+            <p class="welcome-text">Hello, 
+                <span class="highlight" id="welcome-name">User</span>!
+            </p>
+        </div>
+        
+        <div id="error-message-container"></div>
+        
+        <div class="profile-content" id="profile-content">
+            <div class="profile-card">
+                <h2>Account Information</h2>
+                <div class="info-grid">
+
+                    <div class="info-item">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value" id="info-name"></div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value" id="info-email"></div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Contact Number</div>
+                        <div class="info-value" id="info-contact"></div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Address</div>
+                        <div class="info-value" id="info-address"></div>
+                    </div>
+
+                </div>
+            </div>
+            
+
+            <div class="stats-section">
+                <h3>Account Statistics</h3>
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <h4>Last Login</h4>
+                        <p id="last-login">Today</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h4>Account Status</h4>
+                        <p class="status-active">Active</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="module">
+import { requireAuth } from "./firebase-admin.js";
+
+requireAuth((user, profile) => {
+    // Welcome name
+    document.getElementById("welcome-name").textContent = profile.name || "User";
+
+    // Profile fields
+    document.getElementById("info-name").textContent    = profile.name    || "—";
+    document.getElementById("info-email").textContent   = user.email;
+    document.getElementById("info-contact").textContent = profile.contact  || "—";
+    document.getElementById("info-address").textContent = profile.address  || "—";
+
+    // Last login — Firebase Auth stores this as an ISO string on the user object
+    const lastLogin = user.metadata?.lastSignInTime
+        ? new Date(user.metadata.lastSignInTime).toLocaleString("en-PH", {
+              month: "short", day: "numeric", year: "numeric",
+              hour:  "numeric", minute: "2-digit", hour12: true
+          })
+        : "Today";
+    document.getElementById("last-login").textContent = lastLogin;
+});
+</script>
+
+</body>
+</html>

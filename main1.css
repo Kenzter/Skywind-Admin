@@ -1,0 +1,152 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to bottom, #003F72, #000000);
+    padding: 20px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.logo {
+    height: auto;
+    width: 35%;
+    max-width: 300px;
+    min-width: 160px;
+}
+
+.loginbox {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    background: linear-gradient(to left, #bebebe, #003D6F);
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px #2e63a8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 30px;
+    box-sizing: border-box;
+}
+
+.login {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.login input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ffffff98;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.login button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    border: 1px solid #ffffff98;
+    background: #31648E;
+    color: white;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login button:hover {
+    background: #3f86d1;
+}
+
+label {
+    color: white;
+    font-size: 16px;
+    font-family: "Poppins", sans-serif;
+}
+
+.inputbox {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.signup {
+    color: #ffffff;
+    font-size: 15px;
+    font-family: "Poppins", sans-serif;
+    display: block;
+    margin-top: 10px;
+}
+
+.signup:hover {
+    color: #2f82ff;
+}
+
+.input {
+    background: linear-gradient(to right, #31648E, #0E1C28);
+    color: white;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+}
+
+/* ── Tablet ── */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 30px 20px;
+    }
+
+    .logo {
+        width: 50%;
+        max-width: 200px;
+    }
+
+    .loginbox {
+        padding: 30px 20px;
+    }
+}
+
+/* ── Phone ── */
+@media (max-width: 480px) {
+    body {
+        padding: 20px 16px;
+        gap: 16px;
+    }
+
+    .logo {
+        width: 60%;
+        max-width: 180px;
+    }
+
+    .loginbox {
+        padding: 24px 16px;
+        border-radius: 12px;
+    }
+
+    .login input,
+    .login button {
+        font-size: 15px;
+        padding: 14px 12px;
+    }
+
+    label { font-size: 14px; }
+    .signup { font-size: 13px; }
+}

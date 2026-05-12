@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page (admin)</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+
+<body>
+  <div class="loader">
+    <img src="logo.png" alt="Loading Logo">
+  </div>
+  
+<header>
+    <img class="logo" src="logo.png">
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="home.html">HOME</a></li>
+            <li><a href="schedule.html">SCHEDULE</a></li>
+            <li><a href="request.html">REQUEST</a></li>
+            <li><a href="personal.html">PERSONAL</a></li>
+            <li><a href="logout.html">LOG OUT</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="home">
+    <div class="homebox">
+        <h1>HOME PAGE</h1>
+        <p id="welcome-text">Hello, Admin! We're glad to have you back. <br> Check now our Client Schedule and Requests!</p>
+        <div class="user-info">
+            <p><strong>Email:</strong> <span id="user-email"></span></p>
+            <p><strong>Login Time:</strong> <span id="login-time"></span></p>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { requireAuth } from "./firebase-admin.js";
+
+requireAuth((user, profile) => {
+    const displayName = profile.name || user.email;
+
+    document.getElementById("welcome-text").innerHTML =
+        `Hello, Admin ${displayName}! We're glad to have you back. <br> Check now our Client Schedule and Requests!`;
+
+    document.getElementById("user-email").textContent  = user.email;
+    document.getElementById("login-time").textContent  =
+        new Date().toLocaleString("en-PH", {
+            year: "numeric", month: "2-digit", day: "2-digit",
+            hour: "2-digit", minute: "2-digit", second: "2-digit",
+            hour12: false
+        }).replace(",", "");
+});
+</script>
+
+</body>
+</html>

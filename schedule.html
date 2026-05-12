@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule Page</title>
+    <link rel="stylesheet" href="schedule.css">
+</head>
+
+<div class="loader">
+  <img src="logo.png" alt="Loading Logo">
+</div>
+
+<body>
+
+<header>
+    <img class="logo" src="logo.png">
+    <nav class="navbar">
+        <ul>
+            <li><a href="home.html">HOME</a></li>
+            <li><a href="schedule.html">SCHEDULE</a></li>
+            <li><a href="request.html">REQUEST</a></li>
+            <li><a href="personal.html">PERSONAL</a></li>
+            <li><a href="logout.html">LOG OUT</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="schedule">
+    <div class="schedulebox">
+        <div class="skywindsched">
+            <h2>SCHEDULED REQUESTS</h2>
+
+            <div id="flash-message"></div>
+            <div id="message-box"></div>
+
+            <div id="schedule-container">
+                <p style="color:#003d6f; font-size:16px;">Loading schedules...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { requireAuth, fetchSchedules, completeSchedule } from "./firebase-admin.js";
+
+// XSS guard
+function escHtml(str) {
+    if (str == null) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+const messageBox = document.getElementById("message-box");
+const container  = document.getElementById("schedule-container");
+
+function showMessage(msg, type = "success") {
+    messageBox.innerHTML = `<div class="message-box ${type}-message">${msg}</div>`;
+    setTimeout(() => { messageBox.innerHTML = ""; }, 5000);
+}
+
+async function loadSchedules() {
+    console.log("[loadSchedules] Fetching schedules from Firebase...");
+    try {
+        const schedules = await fetchSchedules();
+        console.log("[loadSchedules] Fetched schedules:", schedules);
+
+        if (schedules.length === 0) {
+            container.innerHTML = `
+                <div class="no-request">
+                    <p>No scheduled requests found.</p>
+                    <p>Accepted requests will appear here.</p>
+                </div>`;
+            return;
+        }
+
+        let rows = "";
+        schedules.forEach((sched) => {
+            console.log("[loadSchedules] Schedule entry — _key:", sched._key, "| data:", sched);
+            rows += `
+                <tr>
+                    <td>${escHtml(sched.name)}</td>
+                    <td>${escHtml(sched.email)}</td>
+                    <td>${escHtml(sched.contact)}</td>
+                    <td>${escHtml(sched.address)}</td>
+                    <td>${escHtml(sched.service)}</td>
+                    <td>${escHtml(sched.units)}</td>
+                    <td>${escHtml(sched.aircontype)}</td>
+                    <td>${escHtml(sched.date_time)}</td>
+                    <td>${escHtml(sched.note)}</td>
+                    <td>
+                        <button
+                            class="complete-btn"
+                            data-key="${escHtml(sched._key)}"
+                            data-contact="${escHtml(sched.contact)}">
+                            Complete
+                        </button>
+                    </td>
+                </tr>`;
+        });
+
+        container.innerHTML = `
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Name</th><th>Email</th><th>Contact</th><th>Address</th>
+                        <th>Service</th><th>Units</th><th>Type</th><th>Date</th>
+                        <th>Note</th><th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+
+        console.log("[loadSchedules] Table rendered successfully.");
+
+    } catch (err) {
+        console.error("[loadSchedules] ERROR fetching schedules:", err);
+        container.innerHTML =
+            `<div class="error-message"><strong>Error:</strong> ${err.message}</div>`;
+    }
+}
+
+// Complete button handler
+container.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".complete-btn");
+    if (!btn) return;
+
+    const scheduleKey = btn.dataset.key;
+    const contactId   = btn.dataset.contact;
+
+    console.log("[Complete] Button clicked.");
+    console.log("[Complete] scheduleKey:", scheduleKey);
+    console.log("[Complete] contactId:", contactId);
+
+    if (!scheduleKey) {
+        console.error("[Complete] ERROR: scheduleKey is empty or undefined!");
+        showMessage("Error: Could not find the schedule key. Please refresh and try again.", "error");
+        return;
+    }
+
+    if (!confirm("Are you sure you want to mark this service as completed?")) {
+        console.log("[Complete] User cancelled.");
+        return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = "Completing...";
+
+    try {
+        console.log("[Complete] Calling completeSchedule with key:", scheduleKey);
+        await completeSchedule(scheduleKey);
+        console.log("[Complete] Successfully deleted from Firebase.");
+        showMessage(`Service for contact #${escHtml(contactId)} has been marked as completed.`);
+        await loadSchedules();
+    } catch (err) {
+        console.error("[Complete] ERROR during completeSchedule:", err);
+        showMessage("Failed to complete request: " + err.message, "error");
+        btn.disabled    = false;
+        btn.textContent = "Complete";
+    }
+});
+
+requireAuth(async () => {
+    console.log("[requireAuth] User authenticated. Loading schedules...");
+
+    const flash = sessionStorage.getItem("request_message");
+    if (flash) {
+        document.getElementById("flash-message").innerHTML =
+            `<div class="message-box success-message">${escHtml(flash)}</div>`;
+        sessionStorage.removeItem("request_message");
+    }
+
+    await loadSchedules();
+});
+</script>
+
+</body>
+</html>

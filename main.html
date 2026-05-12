@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skywind Admin</title>
+    <link rel="stylesheet" href="main1.css">
+</head>
+<body>
+
+    <img class="logo" src="logo.png">
+
+    <div class="loginbox">
+        <div class="login">
+            <form class="loginform" id="loginForm">
+
+                <div id="error-container"></div>
+
+                <div class="inputbox">
+                    <label>E-mail:</label>
+                    <input type="text" name="email" id="email" class="input" required>
+                </div>
+
+                <div class="inputbox">
+                    <label>Password:</label>
+                    <input type="password" name="password" id="password" class="input" required>
+                </div>
+
+                <a class="signup" href="adminregister.html">Create an Account</a><br>
+
+                <div class="button-row">
+                    <button type="submit" class="loginbtn">Login</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+<script type="module">
+import { loginAdmin, auth } from "./firebase-admin.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+// If already logged in, go straight to home
+onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = "home.html";
+});
+
+const form          = document.getElementById("loginForm");
+const errorContainer = document.getElementById("error-container");
+
+function showError(msg) {
+    errorContainer.innerHTML = `<div class="error-message"><p>${msg}</p></div>`;
+}
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorContainer.innerHTML = "";
+
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!email) { showError("Email is required"); return; }
+    if (!password) { showError("Password is required"); return; }
+
+    try {
+        await loginAdmin(email, password);
+        window.location.href = "home.html";
+    } catch (err) {
+        // Mirror the original generic error message
+        showError("Invalid email or password");
+    }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging Out...</title>
+    <link rel="stylesheet" href="logout.css">
+</head>
+<body>
+    <div class="loader">
+        <img src="logo.png" alt="Loading...">
+    </div>
+
+<script type="module">
+import { logoutAdmin } from "./firebase-admin.js";
+
+// Sign out from Firebase, then redirect — mirrors the PHP session destroy + redirect
+(async () => {
+    try {
+        await logoutAdmin();
+    } catch (e) {
+        // Even if signOut fails, redirect anyway
+    }
+    setTimeout(() => {
+        window.location.href = "main.html";
+    }, 1500);
+})();
+</script>
+
+</body>
+</html>

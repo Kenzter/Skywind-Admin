@@ -1,0 +1,200 @@
+body {
+    background-image:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(0, 61, 111, 0.85)),
+        url(skywind-bg.jpg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    font-family: "Poppins", sans-serif;
+    min-height: 100vh;
+}
+
+/* ── Loader ── */
+.loader {
+    position: fixed;
+    inset: 0;
+    background: #020c1b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeOut 1s ease forwards;
+    animation-delay: 1.5s;
+}
+.loader img { width: 200px; animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+    0%   { transform: scale(0.9); opacity: 0.8; }
+    50%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+}
+@keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+
+/* ── Header ── */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.logo { width: 150px; height: auto; transition: transform 0.3s ease; }
+.logo:hover { transform: scale(1.05); }
+
+/* ── Navbar ── */
+.navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 3px solid #001f3f;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #001f3f;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.navbar li a {
+    display: block;
+    text-align: center;
+    padding: 10px 14px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.navbar a:hover {
+    background-color: #003d6f;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 61, 111, 0.2);
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+}
+.hamburger span {
+    display: block;
+    width: 26px;
+    height: 3px;
+    background: #001f3f;
+    border-radius: 3px;
+}
+
+/* ── Schedule box ── */
+.schedule { padding: 20px; }
+
+.schedulebox {
+    width: 100%;
+    max-width: 1400px;
+    height: auto;
+    background: rgba(255, 255, 255, 0.733);
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #003d6f;
+    border-top: 8px solid #003d6f;
+    box-shadow: 0 10px 30px rgba(0, 31, 63, 0.15);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* ── Table — scrollable on small screens ── */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.schedule-table {
+    width: 100%;
+    min-width: 700px;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 15px;
+    text-align: center;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+}
+
+.schedule-table thead { background-color: #003d6f; color: white; }
+.schedule-table th { padding: 12px 10px; border: 1px solid #ddd; font-weight: bold; }
+.schedule-table td { padding: 10px; border: 1px solid #ddd; }
+.schedule-table tbody tr:hover { background-color: #e6f1fa; transition: 0.2s ease-in-out; }
+
+/* ── Buttons ── */
+.complete-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.complete-btn:hover { background-color: #218838; }
+
+/* ── Messages ── */
+.success-message, .error-message {
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+.success-message { background-color: #d4edda; color: #155724; }
+.error-message   { background-color: #f8d7da; color: #721c24; }
+
+.no-request {
+    padding: 20px;
+    background: linear-gradient(135deg, #d5ebffd5 0%, #003b75 100%);
+    border-radius: 6px;
+    color: #000;
+    font-size: 17px;
+}
+
+/* ── Tablet ── */
+@media (max-width: 768px) {
+    header { padding: 14px 20px; }
+    .logo { width: 110px; }
+
+    .navbar ul {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 10px 0;
+        border-bottom: none;
+        display: none;
+    }
+    .navbar ul.open { display: flex; }
+    .navbar li a { padding: 10px 16px; width: 100%; }
+    .hamburger { display: flex; }
+
+    .schedulebox { padding: 16px; }
+    .schedule-table { font-size: 13px; }
+    .schedule-table th, .schedule-table td { padding: 8px 6px; }
+}
+
+/* ── Phone ── */
+@media (max-width: 480px) {
+    header { padding: 10px 14px; }
+    .logo { width: 90px; }
+    .schedule { padding: 12px; }
+    .schedulebox { padding: 12px; border-radius: 10px; }
+    .schedule-table { font-size: 12px; }
+    .complete-btn { padding: 6px 10px; font-size: 12px; }
+}
