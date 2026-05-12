@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skywind Admin</title>
     <link rel="stylesheet" href="main1.css">
-        <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -40,7 +40,6 @@
 import { loginAdmin, auth } from "./firebase-admin.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
-// If already logged in, go straight to home
 onAuthStateChanged(auth, (user) => {
     if (user) window.location.href = "home.html";
 });
@@ -66,7 +65,6 @@ form.addEventListener("submit", async (e) => {
         await loginAdmin(email, password);
         window.location.href = "home.html";
     } catch (err) {
-        // Mirror the original generic error message
         showError("Invalid email or password");
     }
 });

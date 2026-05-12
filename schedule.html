@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-        <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule Page</title>
     <link rel="stylesheet" href="schedule.css">
 </head>
 
-<div class="loader">
-  <img src="logo.png" alt="Loading Logo">
-</div>
-
 <body>
+  <div class="loader">
+    <img src="logo.png" alt="Loading Logo">
+  </div>
 
 <header>
     <img class="logo" src="logo.png">
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     <nav class="navbar">
         <ul>
             <li><a href="home.html">HOME</a></li>
@@ -41,18 +41,25 @@
     </div>
 </div>
 
+<script>
+document.addEventListener("click", function(e){
+  if (e.target.closest(".hamburger")) {
+    document.querySelector(".navbar ul").classList.toggle("open");
+  } else if (!e.target.closest(".navbar")) {
+    var ul = document.querySelector(".navbar ul");
+    if (ul) ul.classList.remove("open");
+  }
+});
+</script>
+
 <script type="module">
 import { requireAuth, fetchSchedules, completeSchedule } from "./firebase-admin.js";
 
-// XSS guard
 function escHtml(str) {
     if (str == null) return "";
     return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 const messageBox = document.getElementById("message-box");
@@ -64,11 +71,8 @@ function showMessage(msg, type = "success") {
 }
 
 async function loadSchedules() {
-    console.log("[loadSchedules] Fetching schedules from Firebase...");
     try {
         const schedules = await fetchSchedules();
-        console.log("[loadSchedules] Fetched schedules:", schedules);
-
         if (schedules.length === 0) {
             container.innerHTML = `
                 <div class="no-request">
@@ -80,7 +84,6 @@ async function loadSchedules() {
 
         let rows = "";
         schedules.forEach((sched) => {
-            console.log("[loadSchedules] Schedule entry — _key:", sched._key, "| data:", sched);
             rows += `
                 <tr>
                     <td>${escHtml(sched.name)}</td>
@@ -93,18 +96,16 @@ async function loadSchedules() {
                     <td>${escHtml(sched.date_time)}</td>
                     <td>${escHtml(sched.note)}</td>
                     <td>
-                        <button
-                            class="complete-btn"
+                        <button class="complete-btn"
                             data-key="${escHtml(sched._key)}"
-                            data-contact="${escHtml(sched.contact)}">
-                            Complete
-                        </button>
+                            data-contact="${escHtml(sched.contact)}">Complete</button>
                     </td>
                 </tr>`;
         });
 
         container.innerHTML = `
-            <table class="schedule-table">
+            <div class="table-scroll">
+              <table class="schedule-table">
                 <thead>
                     <tr>
                         <th>Name</th><th>Email</th><th>Contact</th><th>Address</th>
@@ -113,67 +114,39 @@ async function loadSchedules() {
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
-            </table>`;
-
-        console.log("[loadSchedules] Table rendered successfully.");
-
+              </table>
+            </div>`;
     } catch (err) {
-        console.error("[loadSchedules] ERROR fetching schedules:", err);
-        container.innerHTML =
-            `<div class="error-message"><strong>Error:</strong> ${err.message}</div>`;
+        container.innerHTML = `<div class="error-message"><strong>Error:</strong> ${err.message}</div>`;
     }
 }
 
-// Complete button handler
 container.addEventListener("click", async (e) => {
     const btn = e.target.closest(".complete-btn");
     if (!btn) return;
-
     const scheduleKey = btn.dataset.key;
     const contactId   = btn.dataset.contact;
+    if (!scheduleKey) { showMessage("Error: missing schedule key.", "error"); return; }
+    if (!confirm("Are you sure you want to mark this service as completed?")) return;
 
-    console.log("[Complete] Button clicked.");
-    console.log("[Complete] scheduleKey:", scheduleKey);
-    console.log("[Complete] contactId:", contactId);
-
-    if (!scheduleKey) {
-        console.error("[Complete] ERROR: scheduleKey is empty or undefined!");
-        showMessage("Error: Could not find the schedule key. Please refresh and try again.", "error");
-        return;
-    }
-
-    if (!confirm("Are you sure you want to mark this service as completed?")) {
-        console.log("[Complete] User cancelled.");
-        return;
-    }
-
-    btn.disabled    = true;
-    btn.textContent = "Completing...";
-
+    btn.disabled = true; btn.textContent = "Completing...";
     try {
-        console.log("[Complete] Calling completeSchedule with key:", scheduleKey);
         await completeSchedule(scheduleKey);
-        console.log("[Complete] Successfully deleted from Firebase.");
         showMessage(`Service for contact #${escHtml(contactId)} has been marked as completed.`);
         await loadSchedules();
     } catch (err) {
-        console.error("[Complete] ERROR during completeSchedule:", err);
         showMessage("Failed to complete request: " + err.message, "error");
-        btn.disabled    = false;
-        btn.textContent = "Complete";
+        btn.disabled = false; btn.textContent = "Complete";
     }
 });
 
 requireAuth(async () => {
-    console.log("[requireAuth] User authenticated. Loading schedules...");
-
     const flash = sessionStorage.getItem("request_message");
     if (flash) {
         document.getElementById("flash-message").innerHTML =
             `<div class="message-box success-message">${escHtml(flash)}</div>`;
         sessionStorage.removeItem("request_message");
     }
-
     await loadSchedules();
 });
 </script>

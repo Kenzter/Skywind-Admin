@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-        <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Management</title>
     <link rel="stylesheet" href="request.css">
 </head>
@@ -11,9 +11,10 @@
   <div class="loader">
     <img src="logo.png" alt="Loading Logo">
   </div>
-  
+
 <header>
     <img class="logo" src="logo.png">
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     <nav class="navbar">
         <ul>
             <li><a href="home.html">HOME</a></li>
@@ -34,9 +35,19 @@
         <div id="requests-container">
             <p style="color:#003d6f; font-size:16px;">Loading requests...</p>
         </div>
-
     </div>
 </div>
+
+<script>
+document.addEventListener("click", function(e){
+  if (e.target.closest(".hamburger")) {
+    document.querySelector(".navbar ul").classList.toggle("open");
+  } else if (!e.target.closest(".navbar")) {
+    var ul = document.querySelector(".navbar ul");
+    if (ul) ul.classList.remove("open");
+  }
+});
+</script>
 
 <script type="module">
 import {
@@ -47,9 +58,7 @@ import {
     sendSMS,
 } from "./firebase-admin.js";
 
-requireAuth(async () => {
-    await loadRequests();
-});
+requireAuth(async () => { await loadRequests(); });
 
 const messageBox = document.getElementById("message-box");
 
@@ -60,25 +69,16 @@ function showMessage(msg, type = "success") {
 
 async function loadRequests() {
     const container = document.getElementById("requests-container");
-
     try {
         const requests = await fetchRequests();
-
         if (requests.length === 0) {
             container.innerHTML = `
                 <div class="no-requests">
-                    <p>No pending requests found in skywinddata table.</p>
-                    <p>This could mean:</p>
-                    <ul>
-                        <li>The table is empty</li>
-                        <li>All requests have been processed</li>
-                        <li>There's a database connection issue</li>
-                    </ul>
+                    <p>No pending requests found.</p>
                 </div>`;
             return;
         }
 
-        // Build the exact same table structure as request.php
         let rows = "";
         requests.forEach((req) => {
             rows += `
@@ -93,86 +93,57 @@ async function loadRequests() {
                     <td>${escHtml(req.date_time)}</td>
                     <td>${escHtml(req.note)}</td>
                     <td>
-                        <form class="action-form" data-key="${escHtml(req._key)}">
-                            <button type="button" class="action-btn accept-btn"
-                                onclick="handleAccept('${escHtml(req._key)}')">Accept</button>
-                            <button type="button" class="action-btn reject-btn"
-                                onclick="handleReject('${escHtml(req._key)}')">Reject</button>
-                        </form>
+                        <button type="button" class="action-btn accept-btn"
+                            onclick="handleAccept('${escHtml(req._key)}')">Accept</button>
+                        <button type="button" class="action-btn reject-btn"
+                            onclick="handleReject('${escHtml(req._key)}')">Reject</button>
                     </td>
                 </tr>`;
         });
 
         container.innerHTML = `
-            <table class="request-table">
+            <div class="table-scroll">
+              <table class="request-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Contact</th>
-                        <th>Address</th>
-                        <th>Service</th>
-                        <th>Units</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Note</th>
-                        <th>Action</th>
+                        <th>Name</th><th>Email</th><th>Contact</th><th>Address</th>
+                        <th>Service</th><th>Units</th><th>Type</th><th>Date</th>
+                        <th>Note</th><th>Action</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
-            </table>`;
-
+              </table>
+            </div>`;
     } catch (err) {
         container.innerHTML = `<div class="error-message"><strong>Error:</strong> ${err.message}</div>`;
     }
 }
 
-// Accept: move booking → schedule, send SMS, reload
 window.handleAccept = async function (bookingKey) {
     try {
-        // Re-fetch to get the full data for this key
         const requests   = await fetchRequests();
         const bookingData = requests.find((r) => r._key === bookingKey);
-
-        if (!bookingData) {
-            showMessage("Request not found.", "error");
-            return;
-        }
-
+        if (!bookingData) { showMessage("Request not found.", "error"); return; }
         await acceptRequest(bookingKey, bookingData);
-
-        // Send SMS (mirrors original PHP behaviour)
         const smsResult = await sendSMS(
-            bookingData.contact,
-            bookingData.name,
-            bookingData.service,
-            bookingData.date_time
+            bookingData.contact, bookingData.name, bookingData.service, bookingData.date_time
         );
-
         const smsStatus = smsResult.success
             ? "SMS notification sent successfully."
             : `Warning: SMS failed to send - ${smsResult.error}`;
-
-        // Store flash message for schedule page (same as PHP session flash)
-        sessionStorage.setItem(
-            "request_message",
-            `Request from ${bookingData.name} has been accepted and moved to schedule. ${smsStatus}`
-        );
-
+        sessionStorage.setItem("request_message",
+            `Request from ${bookingData.name} has been accepted and moved to schedule. ${smsStatus}`);
         window.location.href = "schedule.html";
-
     } catch (err) {
         showMessage("Failed to accept request: " + err.message, "error");
     }
 };
 
-// Reject: delete booking, reload list
 window.handleReject = async function (bookingKey) {
     try {
         const requests    = await fetchRequests();
         const bookingData = requests.find((r) => r._key === bookingKey);
         const contactId   = bookingData ? bookingData.contact : bookingKey;
-
         await rejectRequest(bookingKey);
         showMessage(`Request with contact #${contactId} has been rejected.`);
         await loadRequests();
@@ -181,15 +152,11 @@ window.handleReject = async function (bookingKey) {
     }
 };
 
-// XSS guard
 function escHtml(str) {
     if (str == null) return "";
     return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 </script>
 

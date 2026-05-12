@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page (admin)</title>
     <link rel="stylesheet" href="home.css">
 </head>
@@ -11,9 +11,10 @@
   <div class="loader">
     <img src="logo.png" alt="Loading Logo">
   </div>
-  
+
 <header>
     <img class="logo" src="logo.png">
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
 
     <nav class="navbar">
         <ul>
@@ -37,15 +38,24 @@
     </div>
 </div>
 
+<script>
+document.addEventListener("click", function(e){
+  if (e.target.closest(".hamburger")) {
+    document.querySelector(".navbar ul").classList.toggle("open");
+  } else if (!e.target.closest(".navbar")) {
+    var ul = document.querySelector(".navbar ul");
+    if (ul) ul.classList.remove("open");
+  }
+});
+</script>
+
 <script type="module">
 import { requireAuth } from "./firebase-admin.js";
 
 requireAuth((user, profile) => {
     const displayName = profile.name || user.email;
-
     document.getElementById("welcome-text").innerHTML =
         `Hello, Admin ${displayName}! We're glad to have you back. <br> Check now our Client Schedule and Requests!`;
-
     document.getElementById("user-email").textContent  = user.email;
     document.getElementById("login-time").textContent  =
         new Date().toLocaleString("en-PH", {

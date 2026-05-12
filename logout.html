@@ -13,19 +13,10 @@
 
 <script type="module">
 import { logoutAdmin } from "./firebase-admin.js";
-
-// Sign out from Firebase, then redirect — mirrors the PHP session destroy + redirect
 (async () => {
-    try {
-        await logoutAdmin();
-    } catch (e) {
-        // Even if signOut fails, redirect anyway
-    }
-    setTimeout(() => {
-        window.location.href = "main.html";
-    }, 1500);
+    try { await logoutAdmin(); } catch (e) {}
+    setTimeout(() => { window.location.href = "main.html"; }, 1500);
 })();
 </script>
-
 </body>
 </html>

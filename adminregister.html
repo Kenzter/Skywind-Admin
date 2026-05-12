@@ -1,26 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration</title>
     <link rel="stylesheet" href="adminregister.css">
-    <img class="logo" src="logo.png">
 </head>
 <body>
-      <div class="loader">
+  <div class="loader">
     <img src="logo.png" alt="Loading Logo">
   </div>
+
+  <div class="container">
+    <img class="logo" src="logo.png">
 
     <div class="registerbox">
         <div class="register">
             <form class="registerform" id="registerForm">
-                <h1>REGISTER ADMIN ACCOUNT</h1><br>
+                <h1>REGISTER ADMIN ACCOUNT</h1>
 
-                <!-- SUCCESS MESSAGE -->
                 <div id="success-container"></div>
-
-                <!-- ERROR MESSAGES -->
                 <div id="error-container"></div>
 
                 <div class="registername">
@@ -30,7 +29,7 @@
 
                 <div class="registeremail">
                     <label>E-mail</label>
-                    <input type="text" name="email" id="email" placeholder="abcde@gmail.com" required>
+                    <input type="email" name="email" id="email" placeholder="abcde@gmail.com" required>
                 </div>
 
                 <div class="registerpassword">
@@ -54,16 +53,11 @@
                     <button type="button" class="btn-login" onclick="window.location.href='main.html'">
                         Login
                     </button>
-                    <div class="loader">
-                        <img src="logo.png" alt="Loading Logo">
-                    </div>
                 </div>
-                    <div class="loader">
-                        <img src="logo.png" alt="Loading Logo">
-                    </div>
             </form>
         </div>
     </div>
+  </div>
 
 <script type="module">
 import { registerAdmin } from "./firebase-admin.js";
@@ -100,7 +94,6 @@ form.addEventListener("submit", async (e) => {
         showSuccess("Successfully registered! Go to Login.");
         form.reset();
     } catch (err) {
-        // Firebase error codes mapped to human-readable messages
         if (err.code === "auth/email-already-in-use") {
             showError("Email already registered.");
         } else if (err.code === "auth/weak-password") {
