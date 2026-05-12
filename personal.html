@@ -78,14 +78,31 @@
 </div>
 
 <script>
-document.addEventListener("click", function(e){
-  if (e.target.closest(".hamburger")) {
-    document.querySelector(".navbar ul").classList.toggle("open");
-  } else if (!e.target.closest(".navbar")) {
-    var ul = document.querySelector(".navbar ul");
-    if (ul) ul.classList.remove("open");
-  }
-});
+(function () {
+    const hamburger = document.querySelector(".hamburger");
+    const navUl     = document.querySelector(".navbar ul");
+    if (!hamburger || !navUl) return;
+
+    hamburger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const isOpen = navUl.classList.toggle("open");
+        hamburger.classList.toggle("active", isOpen);
+    });
+
+    navUl.querySelectorAll("a").forEach(function (link) {
+        link.addEventListener("click", function () {
+            navUl.classList.remove("open");
+            hamburger.classList.remove("active");
+        });
+    });
+
+    document.addEventListener("click", function (e) {
+        if (!e.target.closest("header")) {
+            navUl.classList.remove("open");
+            hamburger.classList.remove("active");
+        }
+    });
+})();
 </script>
 
 <script type="module">
