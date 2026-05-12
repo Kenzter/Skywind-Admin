@@ -201,10 +201,14 @@ header {
 
     .logo { width: 110px; }
 
-    .hamburger { display: flex; }
+    .hamburger { display: flex; margin-left: auto; }
 
+    /* Pull navbar out of flex row so hamburger goes to the far right */
     .navbar {
-        position: static;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
     }
 
     .navbar ul {
