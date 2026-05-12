@@ -209,14 +209,26 @@ header {
 @media (max-width: 768px) {
     header { padding: 14px 20px; }
     .logo { width: 110px; }
-    .hamburger { display: flex; margin-left: auto; }
+    /* Hamburger pinned to the right inside the header */
+    .hamburger {
+        display: flex;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
 
-    /* Pull navbar out of flex row so hamburger goes to the far right */
+    /* Navbar out of flex flow; dropdown ul still overlays below header */
     .navbar {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
+        pointer-events: none;
+    }
+
+    .navbar ul {
+        pointer-events: all;
     }
 
     .navbar ul {
